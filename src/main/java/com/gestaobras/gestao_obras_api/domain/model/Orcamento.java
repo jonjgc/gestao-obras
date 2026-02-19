@@ -1,6 +1,6 @@
 package com.gestaobras.gestaoobrasapi.domain.model;
 
-import com.deltacode.gestaoobrasapi.domain.model.enums.StatusOrcamento;
+import com.gestaobras.gestaoobrasapi.domain.model.enums.StatusOrcamento;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.math.BigDecimal;
