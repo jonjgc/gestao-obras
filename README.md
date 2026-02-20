@@ -39,3 +39,11 @@ Na raiz deste repositório encontram-se os arquivos exigidos para a avaliação:
    spring.datasource.url=jdbc:postgresql://localhost:5432/gestao_obras
    spring.datasource.username=postgres
    spring.datasource.password=j0naT@ss2025
+
+3. Execute o comando `.\mvnw spring-boot:run` para executar a aplicação e deixe executando em segundo plano.
+
+### 3. Frontend (Next.js)
+1. Navegue até a pasta do frontend.
+2. Execute o comando `npm install` para baixar as dependências.
+3. Em seguida execute o comando `npm run dev` para executar a aplicação frontend.
+
