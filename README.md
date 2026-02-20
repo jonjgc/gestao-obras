@@ -24,7 +24,7 @@ A aplicação implementa regras de negócio estritas no Backend para garantir a 
 Na raiz deste repositório encontram-se os arquivos exigidos para a avaliação:
 * `arquivo.sql`: Script com o dump da base de dados
 * `diagrama-banco-dados.png`: Diagrama de Entidade-Relacionamento gerado a partir da estrutura real.
-* Pastas com o código-fonte integral (Backend e Frontend).
+* Pastas com o código-fonte integral, (Backend - pasta "gestao-obras-backend", e Frontend - pasta "gestao-obras-web").
 
 ## Como Executar o Projeto
 
