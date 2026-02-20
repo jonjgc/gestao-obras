@@ -1,41 +1,43 @@
 package com.gestaobras.gestaoobrasapi.domain.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+
 import java.math.BigDecimal;
 
 @Data
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Entity
-@Table(name = "item")
+@Table(name = "itens")
 public class Item {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Long id;
 
-    @Column(nullable = false)
-    private String descricao; // 
+    private String descricao;
 
-    @Column(nullable = false)
-    private BigDecimal quantidade; // 
+    private BigDecimal quantidade;
 
-    @Column(name = "valor_unitario", nullable = false)
-    private BigDecimal valorUnitario; // 
+    private BigDecimal valorUnitario;
 
-    @Column(name = "valor_total", nullable = false)
-    private BigDecimal valorTotal; // 
+    private BigDecimal valorTotal;
 
-    @Column(name = "quantidade_acumulada")
-    private BigDecimal quantidadeAcumulada = BigDecimal.ZERO; // 
+    private BigDecimal quantidadeAcumulada = BigDecimal.ZERO;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "orcamento_id", nullable = false)
-    private Orcamento orcamento; // 
-    
-    // Método auxiliar para atualizar o total automaticamente
+    private Orcamento orcamento;
+
     public void calcularValorTotal() {
-        if (this.quantidade != null && this.valorUnitario != null) {
-            this.valorTotal = this.quantidade.multiply(this.valorUnitario);
+        if (quantidade != null && valorUnitario != null) {
+            this.valorTotal = quantidade.multiply(valorUnitario);
+        } else {
+            this.valorTotal = BigDecimal.ZERO;
         }
     }
 }
