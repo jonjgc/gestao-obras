@@ -12,7 +12,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/orcamentos")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*") // Permite acesso do Next.js
+@CrossOrigin(origins = "*")
 public class OrcamentoController {
 
     private final OrcamentoService service;
@@ -33,7 +33,7 @@ public class OrcamentoController {
         return service.buscarPorId(id);
     }
 
-    @PatchMapping("/{id}/finalizar")
+    @PutMapping("/{id}/finalizar")
     public Orcamento finalizar(@PathVariable Long id) {
         return service.finalizar(id);
     }

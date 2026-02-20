@@ -9,7 +9,7 @@ import { logout } from '../../store/authSlice';
 import { useRouter } from 'next/navigation';
 import { destroyCookie } from 'nookies';
 
-// --- Interfaces (Tipagem) ---
+// --- Interfaces ---
 interface Orcamento {
     id: number;
     numeroProtocolo: string;
@@ -19,14 +19,14 @@ interface Orcamento {
     status: string;
 }
 
-// --- Estilos (Styled Components) ---
+// --- Estilos ---
 
 const TrClicavel = styled.tr`
   cursor: pointer;
   transition: background-color 0.2s;
 
   &:hover {
-    background-color: #f5f5f5;
+    background-color: #e0e0e0;
   }
 `;
 
@@ -100,13 +100,13 @@ const Td = styled.td`
   color: #333;
 `;
 
-const StatusBadge = styled.span<{ status: string }>`
+const StatusBadge = styled.span<{ $status: string }>`
   padding: 5px 10px;
   border-radius: 20px;
   font-size: 0.85em;
   font-weight: bold;
-  background-color: ${(props) => (props.status === 'ABERTO' ? '#e6f7ff' : '#f6ffed')};
-  color: ${(props) => (props.status === 'ABERTO' ? '#1890ff' : '#52c41a')};
+  background-color: ${(props) => (props.$status === 'ABERTO' ? '#e6f7ff' : '#f6ffed')};
+  color: ${(props) => (props.$status === 'ABERTO' ? '#1890ff' : '#52c41a')};
 `;
 
 export default function Dashboard() {
@@ -116,11 +116,9 @@ export default function Dashboard() {
     const dispatch = useDispatch();
     const router = useRouter();
 
-    // Vai buscar o estado de autenticação ao Redux
     const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
 
     useEffect(() => {
-        // Proteção de Rota: Se não estiver autenticado, recambiamos para o login
         if (!isAuthenticated) {
             router.push('/');
             return;
@@ -131,20 +129,18 @@ export default function Dashboard() {
             try {
                 const response = await api.get('/api/orcamentos');
 
-                // VAMOS ESPIAR O QUE O BACKEND DEVOLVEU:
                 console.log('Resposta real da API:', response.data);
 
-                // PROTEÇÃO: Só tenta fazer o map se for realmente um Array
                 if (Array.isArray(response.data)) {
                     setOrcamentos(response.data);
                 } else {
                     console.error('Atenção: A API não devolveu uma lista!', response.data);
-                    setOrcamentos([]); // Garante que fica vazio e não quebra a tela
+                    setOrcamentos([]); 
                 }
 
             } catch (error) {
                 console.error('Erro ao buscar orçamentos:', error);
-                setOrcamentos([]); // Em caso de erro (ex: 403), evita a quebra
+                setOrcamentos([]);
             } finally {
                 setLoading(false);
             }
@@ -154,9 +150,9 @@ export default function Dashboard() {
     }, [isAuthenticated, router]);
 
     const handleLogout = () => {
-        destroyCookie(undefined, 'gestaoobras.token', { path: '/' }); // Remove o cookie
-        dispatch(logout()); // Limpa o estado global do Redux
-        router.push('/'); // Redireciona para o login
+        destroyCookie(undefined, 'gestaoobras.token', { path: '/' });
+        dispatch(logout()); 
+        router.push('/');
     };
 
     if (loading) {
@@ -190,7 +186,10 @@ export default function Dashboard() {
                     </thead>
                     <tbody>
                         {orcamentos.map((orcamento) => (
-                            <TrClicavel key={orcamento.id}>
+                            <TrClicavel 
+                                key={orcamento.id} 
+                                onClick={() => router.push(`/dashboard/orcamento/${orcamento.id}`)}
+                            >
                                 <Td>{orcamento.id}</Td>
                                 <Td>{orcamento.numeroProtocolo}</Td>
                                 <Td>{orcamento.tipoOrcamento}</Td>
@@ -202,7 +201,7 @@ export default function Dashboard() {
                                 </Td>
                                 <Td>{new Date(orcamento.dataCriacao).toLocaleDateString('pt-BR')}</Td>
                                 <Td>
-                                    <StatusBadge status={orcamento.status}>{orcamento.status}</StatusBadge>
+                                    <StatusBadge $status={orcamento.status}>{orcamento.status}</StatusBadge>
                                 </Td>
                             </TrClicavel>
                         ))}
