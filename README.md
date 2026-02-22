@@ -43,7 +43,7 @@ Na raiz deste repositório encontram-se os arquivos exigidos para a avaliação:
 
 3. Execute o comando `.\mvnw spring-boot:run` para executar a aplicação e deixe executando em segundo plano.
 
-# 3 Testes Automatizados (Backend)
+### 3 Testes Automatizados (Backend)
 A aplicação conta com testes unitários focados nas regras de negócio críticas do sistema, utilizando JUnit 5 e Mockito
 
 ## O que foi testado?
