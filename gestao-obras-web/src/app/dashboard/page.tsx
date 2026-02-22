@@ -20,33 +20,40 @@ interface Orcamento {
 }
 
 // --- Estilos ---
-
-const TrClicavel = styled.tr`
-  cursor: pointer;
-  transition: background-color 0.2s;
-
-  &:hover {
-    background-color: #e0e0e0;
-  }
-`;
-
 const Container = styled.div`
-  padding: 20px;
+  padding: 15px;
   max-width: 1200px;
   margin: 0 auto;
+
+  @media (min-width: 768px) {
+    padding: 20px;
+  }
 `;
 
 const Header = styled.header`
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 30px;
+  flex-direction: column;
+  gap: 15px;
+  align-items: flex-start;
+  margin-bottom: 20px;
   padding-bottom: 20px;
   border-bottom: 2px solid #eee;
+
+  @media (min-width: 768px) {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+  }
 `;
 
 const Title = styled.h1`
   color: ${(props) => props.theme.colors.text};
+  font-size: 1.5rem;
+
+  @media (min-width: 768px) {
+    font-size: 2rem;
+  }
 `;
 
 const LogoutButton = styled.button`
@@ -57,6 +64,11 @@ const LogoutButton = styled.button`
   border-radius: 4px;
   cursor: pointer;
   font-weight: bold;
+  width: 100%;
+
+  @media (min-width: 768px) {
+    width: auto;
+  }
 
   &:hover {
     background-color: #d9363e;
@@ -72,19 +84,29 @@ const ActionButton = styled.button`
   cursor: pointer;
   font-weight: bold;
   margin-bottom: 20px;
+  width: 100%;
+
+  @media (min-width: 768px) {
+    width: auto;
+  }
 
   &:hover {
     background-color: #005bb5;
   }
 `;
 
-const Table = styled.table`
+const TableContainer = styled.div`
   width: 100%;
-  border-collapse: collapse;
+  overflow-x: auto; /* Mágica do mobile aqui! */
   background: white;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
-  overflow: hidden;
+`;
+
+const Table = styled.table`
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 700px;
 `;
 
 const Th = styled.th`
@@ -98,6 +120,15 @@ const Td = styled.td`
   padding: 15px;
   border-bottom: 1px solid #eee;
   color: #333;
+`;
+
+const TrClicavel = styled.tr`
+  cursor: pointer;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: #e0e0e0;
+  }
 `;
 
 const StatusBadge = styled.span<{ $status: string }>`
@@ -124,22 +155,16 @@ export default function Dashboard() {
             return;
         }
 
-        // Se estiver autenticado, vai buscar os orçamentos
         const fetchOrcamentos = async () => {
             try {
                 const response = await api.get('/api/orcamentos');
-
-                console.log('Resposta real da API:', response.data);
-
                 if (Array.isArray(response.data)) {
                     setOrcamentos(response.data);
                 } else {
-                    console.error('Atenção: A API não devolveu uma lista!', response.data);
                     setOrcamentos([]); 
                 }
-
             } catch (error) {
-                console.error('Erro ao buscar orçamentos:', error);
+                console.error("Erro detalhado ao buscar orçamentos:", error);
                 setOrcamentos([]);
             } finally {
                 setLoading(false);
@@ -155,14 +180,12 @@ export default function Dashboard() {
         router.push('/');
     };
 
-    if (loading) {
-        return <Container>A carregar...</Container>;
-    }
+    if (loading) return <Container>A carregar...</Container>;
 
     return (
         <Container>
             <Header>
-                <Title>Gestão de Obras - Dashboard</Title>
+                <Title>Gestão de Obras</Title>
                 <LogoutButton onClick={handleLogout}>Sair (Logout)</LogoutButton>
             </Header>
             <ActionButton onClick={() => router.push('/dashboard/novo')}>
@@ -173,40 +196,42 @@ export default function Dashboard() {
             {orcamentos.length === 0 ? (
                 <p>Nenhum orçamento encontrado.</p>
             ) : (
-                <Table>
-                    <thead>
-                        <tr>
-                            <Th>ID</Th>
-                            <Th>Protocolo</Th>
-                            <Th>Tipo</Th>
-                            <Th>Valor Total</Th>
-                            <Th>Data de Criação</Th>
-                            <Th>Status</Th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {orcamentos.map((orcamento) => (
-                            <TrClicavel 
-                                key={orcamento.id} 
-                                onClick={() => router.push(`/dashboard/orcamento/${orcamento.id}`)}
-                            >
-                                <Td>{orcamento.id}</Td>
-                                <Td>{orcamento.numeroProtocolo}</Td>
-                                <Td>{orcamento.tipoOrcamento}</Td>
-                                <Td>
-                                    {new Intl.NumberFormat('pt-BR', {
-                                        style: 'currency',
-                                        currency: 'BRL',
-                                    }).format(orcamento.valorTotal)}
-                                </Td>
-                                <Td>{new Date(orcamento.dataCriacao).toLocaleDateString('pt-BR')}</Td>
-                                <Td>
-                                    <StatusBadge $status={orcamento.status}>{orcamento.status}</StatusBadge>
-                                </Td>
-                            </TrClicavel>
-                        ))}
-                    </tbody>
-                </Table>
+                <TableContainer>
+                    <Table>
+                        <thead>
+                            <tr>
+                                <Th>ID</Th>
+                                <Th>Protocolo</Th>
+                                <Th>Tipo</Th>
+                                <Th>Valor Total</Th>
+                                <Th>Data de Criação</Th>
+                                <Th>Status</Th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {orcamentos.map((orcamento) => (
+                                <TrClicavel 
+                                    key={orcamento.id} 
+                                    onClick={() => router.push(`/dashboard/orcamento/${orcamento.id}`)}
+                                >
+                                    <Td>{orcamento.id}</Td>
+                                    <Td>{orcamento.numeroProtocolo}</Td>
+                                    <Td>{orcamento.tipoOrcamento}</Td>
+                                    <Td>
+                                        {new Intl.NumberFormat('pt-BR', {
+                                            style: 'currency',
+                                            currency: 'BRL',
+                                        }).format(orcamento.valorTotal)}
+                                    </Td>
+                                    <Td>{new Date(orcamento.dataCriacao).toLocaleDateString('pt-BR')}</Td>
+                                    <Td>
+                                        <StatusBadge $status={orcamento.status}>{orcamento.status}</StatusBadge>
+                                    </Td>
+                                </TrClicavel>
+                            ))}
+                        </tbody>
+                    </Table>
+                </TableContainer>
             )}
         </Container>
     );

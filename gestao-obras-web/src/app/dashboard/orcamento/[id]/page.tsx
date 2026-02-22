@@ -28,26 +28,41 @@ interface OrcamentoDetalhado {
 
 // --- Estilos ---
 const Container = styled.div`
-  padding: 20px;
+  padding: 15px;
   max-width: 1000px;
   margin: 0 auto;
+
+  @media (min-width: 768px) {
+    padding: 20px;
+  }
 `;
 
 const Card = styled.div`
   background: white;
-  padding: 30px;
+  padding: 20px;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
   margin-bottom: 20px;
+
+  @media (min-width: 768px) {
+    padding: 30px;
+  }
 `;
 
 const HeaderBox = styled.div`
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  gap: 15px;
+  align-items: flex-start;
   border-bottom: 1px solid #eee;
   padding-bottom: 15px;
   margin-bottom: 20px;
+
+  @media (min-width: 768px) {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
 `;
 
 const StatusBadge = styled.span<{ $status: string }>`
@@ -65,6 +80,8 @@ const Button = styled.button<{ $variant?: 'primary' | 'success' | 'outline' }>`
   border-radius: 4px;
   font-weight: bold;
   cursor: pointer;
+  width: 100%;
+  text-align: center;
   color: ${(props) => (props.$variant === 'outline' ? '#333' : 'white')};
   background-color: ${(props) => {
         if (props.$variant === 'success') return '#52c41a';
@@ -72,6 +89,10 @@ const Button = styled.button<{ $variant?: 'primary' | 'success' | 'outline' }>`
         return props.theme.colors.primary;
     }};
   
+  @media (min-width: 768px) {
+    width: auto;
+  }
+
   &:disabled {
     background-color: #ccc;
     cursor: not-allowed;
@@ -80,8 +101,12 @@ const Button = styled.button<{ $variant?: 'primary' | 'success' | 'outline' }>`
 
 const GridInfo = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 15px;
+
+  @media (min-width: 768px) {
+    grid-template-columns: 1fr 1fr;
+  }
 `;
 
 const InfoItem = styled.div`
@@ -89,10 +114,16 @@ const InfoItem = styled.div`
   strong { color: #555; }
 `;
 
+const TableContainer = styled.div`
+  width: 100%;
+  overflow-x: auto;
+`;
+
 const Table = styled.table`
   width: 100%;
   border-collapse: collapse;
   margin-top: 20px;
+  min-width: 600px;
 `;
 
 const Th = styled.th`
@@ -115,7 +146,6 @@ export default function OrcamentoDetalhes() {
     const [orcamento, setOrcamento] = useState<OrcamentoDetalhado | null>(null);
     const [loading, setLoading] = useState(true);
 
-    // Estado para a Medição
     const [itemMedicao, setItemMedicao] = useState<Item | null>(null);
     const [quantidadeMedicao, setQuantidadeMedicao] = useState<number | ''>('');
 
@@ -124,7 +154,7 @@ export default function OrcamentoDetalhes() {
             const response = await api.get(`/api/orcamentos/${id}`);
             setOrcamento(response.data);
         } catch (error) {
-            console.error('Erro ao buscar orçamento', error);
+            console.error("Erro detalhado da API:", error);
             alert('Orçamento não encontrado!');
             router.push('/dashboard');
         } finally {
@@ -143,10 +173,8 @@ export default function OrcamentoDetalhes() {
         try {
             await api.put(`/api/orcamentos/${id}/finalizar`);
             alert('Orçamento finalizado com sucesso!');
-            router.refresh();
             await carregarOrcamento();
         } catch (error) {
-            console.error(error);
             let msg = 'Erro ao finalizar o orçamento.';
             if (axios.isAxiosError(error) && error.response?.data?.mensagem) {
                 msg = error.response.data.mensagem;
@@ -177,7 +205,6 @@ export default function OrcamentoDetalhes() {
             setQuantidadeMedicao('');
             await carregarOrcamento();
         } catch (error) {
-            console.error(error);
             let msg = 'Erro ao registrar medição. Verifique se a quantidade não ultrapassa o total.';
             if (axios.isAxiosError(error) && error.response?.data?.mensagem) {
                 msg = error.response.data.mensagem;
@@ -191,13 +218,15 @@ export default function OrcamentoDetalhes() {
 
     return (
         <Container>
-            <Button $variant="outline" onClick={() => router.push('/dashboard')} style={{ marginBottom: '20px' }}>
-                ← Voltar ao Dashboard
-            </Button>
+            <div style={{ marginBottom: '20px' }}>
+                <Button $variant="outline" onClick={() => router.push('/dashboard')}>
+                    ← Voltar ao Dashboard
+                </Button>
+            </div>
 
             <Card>
                 <HeaderBox>
-                    <h2>Detalhes do Orçamento #{orcamento.id}</h2>
+                    <h2 style={{ margin: 0 }}>Detalhes do Orçamento #{orcamento.id}</h2>
                     <StatusBadge $status={orcamento.status}>{orcamento.status}</StatusBadge>
                 </HeaderBox>
 
@@ -222,50 +251,51 @@ export default function OrcamentoDetalhes() {
             </Card>
 
             <Card>
-                <h3>Itens do Orçamento</h3>
-                <Table>
-                    <thead>
-                        <tr>
-                            <Th>Descrição</Th>
-                            <Th>Qtd. Total</Th>
-                            <Th>Já Medido</Th>
-                            <Th>Valor Unitário</Th>
-                            <Th>Ação</Th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {orcamento.itens?.map(item => (
-                            <tr key={item.id}>
-                                <Td>{item.descricao}</Td>
-                                <Td>{item.quantidade}</Td>
-                                <Td style={{ color: item.quantidadeAcumulada >= item.quantidade ? 'green' : 'black', fontWeight: 'bold' }}>
-                                    {item.quantidadeAcumulada || 0}
-                                </Td>
-                                <Td>{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(item.valorUnitario)}</Td>
-                                <Td>
-                                    {orcamento.status === 'ABERTO' && item.quantidadeAcumulada < item.quantidade && (
-                                        <Button $variant="primary" onClick={() => setItemMedicao(item)}>
-                                            Medir
-                                        </Button>
-                                    )}
-                                    {item.quantidadeAcumulada >= item.quantidade && (
-                                        <span style={{ color: 'green', fontWeight: 'bold' }}>Concluído</span>
-                                    )}
-                                </Td>
+                <h3 style={{ marginTop: 0 }}>Itens do Orçamento</h3>
+                <TableContainer>
+                    <Table>
+                        <thead>
+                            <tr>
+                                <Th>Descrição</Th>
+                                <Th>Qtd. Total</Th>
+                                <Th>Já Medido</Th>
+                                <Th>Valor Unitário</Th>
+                                <Th>Ação</Th>
                             </tr>
-                        ))}
-                    </tbody>
-                </Table>
+                        </thead>
+                        <tbody>
+                            {orcamento.itens?.map(item => (
+                                <tr key={item.id}>
+                                    <Td>{item.descricao}</Td>
+                                    <Td>{item.quantidade}</Td>
+                                    <Td style={{ color: item.quantidadeAcumulada >= item.quantidade ? 'green' : 'black', fontWeight: 'bold' }}>
+                                        {item.quantidadeAcumulada || 0}
+                                    </Td>
+                                    <Td>{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(item.valorUnitario)}</Td>
+                                    <Td>
+                                        {orcamento.status === 'ABERTO' && item.quantidadeAcumulada < item.quantidade && (
+                                            <Button $variant="primary" onClick={() => setItemMedicao(item)}>
+                                                Medir
+                                            </Button>
+                                        )}
+                                        {item.quantidadeAcumulada >= item.quantidade && (
+                                            <span style={{ color: 'green', fontWeight: 'bold' }}>Concluído</span>
+                                        )}
+                                    </Td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </Table>
+                </TableContainer>
             </Card>
 
-            {/* Modal Simples de Medição */}
             {itemMedicao && (
                 <div style={{
                     position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
-                    backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center'
+                    backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '15px'
                 }}>
-                    <Card style={{ width: '400px' }}>
-                        <h3>Registrar Medição</h3>
+                    <Card style={{ width: '100%', maxWidth: '400px', margin: 0 }}>
+                        <h3 style={{ marginTop: 0 }}>Registrar Medição</h3>
                         <p><strong>Item:</strong> {itemMedicao.descricao}</p>
                         <p><strong>Falta medir:</strong> {itemMedicao.quantidade - (itemMedicao.quantidadeAcumulada || 0)}</p>
 
@@ -277,7 +307,7 @@ export default function OrcamentoDetalhes() {
                                 min="0.01"
                                 value={quantidadeMedicao}
                                 onChange={e => setQuantidadeMedicao(Number(e.target.value))}
-                                style={{ padding: '10px', width: '100%' }}
+                                style={{ padding: '10px', width: '100%', borderRadius: '4px', border: '1px solid #ccc' }}
                             />
 
                             <div style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>
@@ -292,7 +322,6 @@ export default function OrcamentoDetalhes() {
                     </Card>
                 </div>
             )}
-
         </Container>
     );
 }

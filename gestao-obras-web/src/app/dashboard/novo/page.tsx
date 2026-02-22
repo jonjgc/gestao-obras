@@ -7,25 +7,38 @@ import { useRouter } from 'next/navigation';
 import axios from 'axios';
 
 const Container = styled.div`
-  padding: 20px;
+  padding: 15px;
   max-width: 800px;
   margin: 0 auto;
+
+  @media (min-width: 768px) {
+    padding: 20px;
+  }
 `;
 
 const Form = styled.form`
   background: white;
-  padding: 30px;
+  padding: 20px;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
   display: flex;
   flex-direction: column;
   gap: 15px;
+
+  @media (min-width: 768px) {
+    padding: 30px;
+  }
 `;
 
 const Row = styled.div`
   display: flex;
+  flex-direction: column;
   gap: 15px;
   width: 100%;
+
+  @media (min-width: 768px) {
+    flex-direction: row;
+  }
 `;
 
 const InputGroup = styled.div`
@@ -66,6 +79,8 @@ const Button = styled.button<{ variant?: 'danger' | 'success' | 'outline' }>`
   border-radius: 4px;
   font-weight: bold;
   cursor: pointer;
+  width: 100%;
+  text-align: center;
   color: ${(props) => (props.variant === 'outline' ? '#333' : 'white')};
   background-color: ${(props) => {
         if (props.variant === 'danger') return '#ff4d4f';
@@ -73,11 +88,33 @@ const Button = styled.button<{ variant?: 'danger' | 'success' | 'outline' }>`
         if (props.variant === 'outline') return '#f0f0f0';
         return props.theme.colors.primary;
     }};
+
+  @media (min-width: 768px) {
+    width: auto;
+  }
+`;
+
+const SectionHeader = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: flex-start;
+
+  @media (min-width: 768px) {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
 `;
 
 const TotalText = styled.h3`
-  text-align: right;
+  text-align: left;
   color: #333;
+  margin-top: 15px;
+
+  @media (min-width: 768px) {
+    text-align: right;
+  }
 `;
 
 interface ItemForm {
@@ -96,10 +133,8 @@ export default function NovoOrcamento() {
     });
     const [itens, setItens] = useState<ItemForm[]>([{ descricao: '', quantidade: 1, valorUnitario: 0 }]);
 
-    // Calcula o total automaticamente sempre que os itens mudam
     const valorTotalCalculado = useMemo(() => {
         return itens.reduce((acc, item) => {
-            // Se for NaN (campo vazio), assume 0 para não quebrar o cálculo
             const qtd = Number(item.quantidade) || 0;
             const vlr = Number(item.valorUnitario) || 0;
             return acc + (qtd * vlr);
@@ -139,14 +174,11 @@ export default function NovoOrcamento() {
             alert('Orçamento criado com sucesso!');
             router.push('/dashboard');
         } catch (error) {
-            console.error(error);
+            console.error("Erro detalhado da API:", error);
             let mensagem = 'Erro ao criar orçamento.';
-
-            // Verifica de forma segura se é um erro gerado pelo Axios
             if (axios.isAxiosError(error) && error.response?.data?.mensagem) {
                 mensagem = error.response.data.mensagem;
             }
-
             alert(mensagem);
         }
     };
@@ -154,9 +186,11 @@ export default function NovoOrcamento() {
     return (
         <Container>
             <h2>Cadastrar Novo Orçamento</h2>
-            <Button variant="outline" onClick={() => router.back()} style={{ marginBottom: '20px' }}>
-                ← Voltar
-            </Button>
+            <div style={{ marginBottom: '20px' }}>
+                <Button variant="outline" type="button" onClick={() => router.back()}>
+                    ← Voltar
+                </Button>
+            </div>
 
             <Form onSubmit={handleSubmit}>
                 <Row>
@@ -181,10 +215,10 @@ export default function NovoOrcamento() {
 
                 <hr style={{ width: '100%', border: '0.5px solid #eee', margin: '10px 0' }} />
 
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <h3>Itens do Orçamento</h3>
+                <SectionHeader>
+                    <h3 style={{ margin: 0 }}>Itens do Orçamento</h3>
                     <Button type="button" variant="success" onClick={handleAddItem}>+ Adicionar Item</Button>
-                </div>
+                </SectionHeader>
 
                 {itens.map((item, index) => (
                     <ItemBox key={index}>
@@ -200,7 +234,6 @@ export default function NovoOrcamento() {
                                     step="0.01"
                                     min="0.01"
                                     required
-                                    // Se for NaN, deixa a string vazia para o usuário poder apagar
                                     value={Number.isNaN(item.quantidade) ? '' : item.quantidade}
                                     onChange={(e) => handleItemChange(index, 'quantidade', parseFloat(e.target.value))}
                                 />
@@ -218,7 +251,7 @@ export default function NovoOrcamento() {
                             </InputGroup>
                         </Row>
                         {itens.length > 1 && (
-                            <Button type="button" variant="danger" onClick={() => handleRemoveItem(index)} style={{ marginTop: '10px' }}>
+                            <Button type="button" variant="danger" onClick={() => handleRemoveItem(index)} style={{ marginTop: '15px' }}>
                                 Remover Item
                             </Button>
                         )}
@@ -226,7 +259,7 @@ export default function NovoOrcamento() {
                 ))}
 
                 <TotalText>
-                    Valor Total do Orçamento: {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(valorTotalCalculado)}
+                    Valor Total: {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(valorTotalCalculado)}
                 </TotalText>
 
                 <Button type="submit" style={{ marginTop: '10px', fontSize: '16px' }}>Salvar Orçamento</Button>

@@ -13,17 +13,23 @@ const Container = styled.div`
   height: 100vh;
   justify-content: center;
   align-items: center;
+  padding: 20px;
+  background-color: #f5f5f5;
 `;
 
 const Form = styled.form`
   background: white;
-  padding: 40px;
+  padding: 25px;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   display: flex;
   flex-direction: column;
   width: 100%;
   max-width: 400px;
+
+  @media (min-width: 768px) {
+    padding: 40px;
+  }
 `;
 
 const Input = styled.input`
@@ -31,6 +37,7 @@ const Input = styled.input`
   padding: 12px;
   border: 1px solid #ccc;
   border-radius: 4px;
+  font-size: 16px;
 `;
 
 const Button = styled.button`
@@ -41,6 +48,18 @@ const Button = styled.button`
   border-radius: 4px;
   cursor: pointer;
   font-weight: bold;
+  font-size: 16px;
+  transition: opacity 0.2s;
+
+  &:hover {
+    opacity: 0.9;
+  }
+`;
+
+const Title = styled.h2`
+  text-align: center;
+  margin-bottom: 30px;
+  color: #333;
 `;
 
 export default function Login() {
@@ -73,7 +92,7 @@ export default function Login() {
   return (
     <Container>
       <Form onSubmit={handleLogin}>
-        <h2>Acesso ao Sistema</h2>
+        <Title>Acesso ao Sistema</Title>
         <Input 
           type="text" 
           placeholder="Utilizador" 
