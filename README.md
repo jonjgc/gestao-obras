@@ -19,6 +19,7 @@ A aplicação implementa regras de negócio estritas no Backend para garantir a 
 * Redux (Gestão de Estado Global de Autenticação)
 * Styled-Components (Estilização baseada em componentes)
 * Axios (Integração HTTP)
+* Mobile-first
 
 ## Estrutura da Entrega
 Na raiz deste repositório encontram-se os arquivos exigidos para a avaliação:
@@ -42,8 +43,18 @@ Na raiz deste repositório encontram-se os arquivos exigidos para a avaliação:
 
 3. Execute o comando `.\mvnw spring-boot:run` para executar a aplicação e deixe executando em segundo plano.
 
-### 3. Frontend (Next.js)
+# 3 Testes Automatizados (Backend)
+A aplicação conta com testes unitários focados nas regras de negócio críticas do sistema, utilizando JUnit 5 e Mockito
+
+## O que foi testado?
+1. A validação principal do serviço de medições, garantindo que a API bloqueia o registro de qualquer medição que tente ultrapassar o saldo disponível no orçamento.
+2. A persistência bem-sucedida de medições com valores válidos.
+
+## Como executar:
+1. Navegue até a pasta do backend (gestao-obras-backend).
+2. Execute o seguinte comando no terminal: `.\mvnw spring-boot:run`
+
+### 4. Frontend (Next.js)
 1. Navegue até a pasta do frontend.
 2. Execute o comando `npm install` para baixar as dependências.
 3. Em seguida execute o comando `npm run dev` para executar a aplicação frontend.
-
